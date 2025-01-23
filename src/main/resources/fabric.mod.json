@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "twigangelring",
+	"version": "${version}",
+	"name": "twigangelring",
+	"description": "A mod that adds a simple angel ring that enables creative flight in survival mode.",
+	"authors": [
+		"Twig"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/twigangelring/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"twig.twigangelring.Angelring"
+		]
+	},
+	"mixins": [
+    {
+      "config": "twigangelring.client.mixins.json",
+      "environment": "client"
+    }
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
