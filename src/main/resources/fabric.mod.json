@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "twigangelring",
 	"version": "${version}",
-	"name": "twigangelring",
+	"name": "Twig Angel Ring",
 	"description": "A mod that adds a simple angel ring that enables creative flight in survival mode.",
 	"authors": [
 		"Twig"
