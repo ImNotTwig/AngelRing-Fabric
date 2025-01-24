@@ -17,7 +17,10 @@
 	"entrypoints": {
 		"main": [
 			"twig.twigangelring.Angelring"
-		]
+		],
+    "client": [
+      "twig.twigangelring.AngelringClient"
+    ]
 	},
 	"mixins": [
     {

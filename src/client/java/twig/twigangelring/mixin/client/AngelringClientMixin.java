@@ -46,8 +46,6 @@ public class AngelringClientMixin {
           jumpDiff = currentJumpTime - lastJumpTime;
           lastJumpTime = currentJumpTime;
 
-          System.out.println(jumpDiff);
-
           if (jumpDiff > HOLD_THRESHOLD && jumpDiff < DOUBLE_JUMP_THRESHOLD) {
             if (player.isOnGround()) {
               isDoubleJump = DoubleJumpState.ONCE;
@@ -70,7 +68,6 @@ public class AngelringClientMixin {
           currentJumpTime = 0;
         }
         if (jumpDiff >= DOUBLE_JUMP_THRESHOLD) {
-          System.out.println("invalidated due to timeout");
           isDoubleJump = DoubleJumpState.INVALID;
         }
 
