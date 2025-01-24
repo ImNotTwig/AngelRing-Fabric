@@ -28,7 +28,7 @@ public class AngelringClientMixin {
   private long lastJumpTime = System.currentTimeMillis();
   private long currentJumpTime = 0;
   private long jumpDiff = currentJumpTime - lastJumpTime;
-  private static final long DOUBLE_JUMP_THRESHOLD = 750;
+  private static final long DOUBLE_JUMP_THRESHOLD = 500;
   private static final long HOLD_THRESHOLD = 75;
 
   @Inject(at = @At("HEAD"), method = "tick")

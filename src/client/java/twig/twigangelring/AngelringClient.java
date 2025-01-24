@@ -25,11 +25,11 @@ public class AngelringClient implements ClientModInitializer {
         GLFW.GLFW_KEY_R,
         "category.twiganglering.angelring"));
 
-    PacketByteBuf buf = PacketByteBufs.create();
 
     ClientTickEvents.END_CLIENT_TICK.register(c -> {
       if (c.player != null) {
         if (boostKey.isPressed()) {
+          PacketByteBuf buf = PacketByteBufs.create();
           double currentTime = System.currentTimeMillis();
           if (currentTime - lastBoostTime > BOOST_COOLDOWN) {
             if (c.player.isFallFlying()) {
