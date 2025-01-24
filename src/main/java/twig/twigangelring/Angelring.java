@@ -2,6 +2,7 @@ package twig.twigangelring;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameMode;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
@@ -27,15 +28,18 @@ public class Angelring implements ModInitializer {
         if (TrinketsApi.getTrinketComponent(player) != null) {
           TrinketComponent trinket = TrinketsApi.getTrinketComponent(player).get();
 
-          if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing))
+          if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
             return false;
+          }
         }
       }
       return true;
     });
+
     ServerTickEvents.START_SERVER_TICK.register(event -> {
       for (ServerPlayerEntity player : event.getPlayerManager().getPlayerList()) {
-        if (TrinketsApi.getTrinketComponent(player) != null) {
+        if (TrinketsApi.getTrinketComponent(player) != null
+            && player.interactionManager.getGameMode() == GameMode.SURVIVAL) {
           TrinketComponent trinket = TrinketsApi.getTrinketComponent(player).get();
           if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
             if (canFly) {
@@ -46,6 +50,11 @@ public class Angelring implements ModInitializer {
               player.getAbilities().flying = false;
             }
             player.sendAbilitiesUpdate();
+          } else {
+            player.getAbilities().allowFlying = false;
+            player.getAbilities().flying = false;
+            player.sendAbilitiesUpdate();
+            twig.twigangelring.Angelring.canFly = false;
           }
         }
       }
