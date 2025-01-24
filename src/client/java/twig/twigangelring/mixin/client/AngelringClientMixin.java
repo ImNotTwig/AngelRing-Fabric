@@ -6,21 +6,28 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import twig.twigangelring.DoubleJumpState;
-
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.network.PacketByteBuf;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
+import io.netty.buffer.ByteBuf;
+
+import twig.twigangelring.Angelring;
 
 @Mixin(ClientPlayerEntity.class)
 public class AngelringClientMixin {
 
   private DoubleJumpState isDoubleJump = DoubleJumpState.INVALID;
 
-  private static long lastJumpTime = System.currentTimeMillis();
-  private static long currentJumpTime = 0;
-  private static long jumpDiff = currentJumpTime - lastJumpTime;
+  private Boolean canFly = false;
+
+  private long lastJumpTime = System.currentTimeMillis();
+  private long currentJumpTime = 0;
+  private long jumpDiff = currentJumpTime - lastJumpTime;
   private static final long DOUBLE_JUMP_THRESHOLD = 750;
   private static final long HOLD_THRESHOLD = 75;
 
@@ -35,7 +42,7 @@ public class AngelringClientMixin {
       TrinketComponent trinket = TrinketsApi.getTrinketComponent(player).get();
 
       if (player.isOnGround()) {
-        twig.twigangelring.Angelring.canFly = false;
+        canFly = false;
       }
 
       if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
@@ -61,7 +68,7 @@ public class AngelringClientMixin {
           }
 
           if (isDoubleJump == DoubleJumpState.TWICE) {
-            twig.twigangelring.Angelring.canFly = !twig.twigangelring.Angelring.canFly;
+            canFly = !canFly;
             isDoubleJump = DoubleJumpState.INVALID;
           }
         } else {
@@ -72,8 +79,13 @@ public class AngelringClientMixin {
         }
 
       } else {
-        twig.twigangelring.Angelring.canFly = false;
+        canFly = false;
       }
+
+      PacketByteBuf buf = PacketByteBufs.create();
+      buf.writeBoolean(canFly);
+
+      ClientPlayNetworking.send(Angelring.FLY_STATE_CHANGE_PACKET_ID, buf);
     }
   }
 }

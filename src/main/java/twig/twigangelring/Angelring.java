@@ -2,10 +2,15 @@ package twig.twigangelring;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +21,9 @@ public class Angelring implements ModInitializer {
   public static final String MOD_ID = "twigangelring";
   public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
   public static boolean canFly = false;
+
+  public static final Identifier FLY_STATE_CHANGE_PACKET_ID = Identifier.of("twigangelring", "fly_state_change");
+  public static final Identifier BOOST_PACKET_ID = Identifier.of("twigangelring", "ring_boost");
 
   @Override
   public void onInitialize() {
@@ -41,23 +49,28 @@ public class Angelring implements ModInitializer {
         if (TrinketsApi.getTrinketComponent(player) != null
             && player.interactionManager.getGameMode() == GameMode.SURVIVAL) {
           TrinketComponent trinket = TrinketsApi.getTrinketComponent(player).get();
-          if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
-            if (canFly) {
-              player.getAbilities().allowFlying = true;
-              player.getAbilities().flying = true;
-            } else {
-              player.getAbilities().allowFlying = false;
-              player.getAbilities().flying = false;
-            }
-            player.sendAbilitiesUpdate();
-          } else {
-            player.getAbilities().allowFlying = false;
-            player.getAbilities().flying = false;
-            player.sendAbilitiesUpdate();
-            twig.twigangelring.Angelring.canFly = false;
-          }
+          Boolean hasTrinket = trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing);
+
+          player.getAbilities().allowFlying = hasTrinket && canFly;
+          player.getAbilities().flying = hasTrinket && canFly;
+          player.sendAbilitiesUpdate();
+          twig.twigangelring.Angelring.canFly = hasTrinket && canFly;
         }
       }
     });
+
+    ServerPlayNetworking.registerGlobalReceiver(
+        FLY_STATE_CHANGE_PACKET_ID,
+        (server, player, handler, buf, responseSender) -> {
+          Boolean flystate = buf.readBoolean();
+          canFly = flystate;
+        });
+
+    ServerPlayNetworking.registerGlobalReceiver(
+        BOOST_PACKET_ID,
+        (server, player, handler, buf, responseSender) -> {
+          Vector3f boostVel = buf.readVector3f();
+          player.setVelocity(new Vec3d((double) boostVel.x, (double) boostVel.y, (double) boostVel.z));
+        });
   }
 }
