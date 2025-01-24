@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#G#",
+        "GEG",
+        "nGn"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:feather"
+        },
+        "G": {
+            "item": "minecraft:gold_block"
+        },
+        "n": {
+            "item": "minecraft:netherite_ingot"
+        },
+        "E": {
+            "item": "minecraft:elytra"
+        }
+    },
+    "result": {
+      "item": "twigangelring:angelring"
+    }
+}
