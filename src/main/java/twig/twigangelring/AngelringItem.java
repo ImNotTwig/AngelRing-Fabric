@@ -4,6 +4,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.registry.Registry;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
@@ -14,8 +15,6 @@ import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketItem;
 
 public class AngelringItem extends TrinketItem {
-  public boolean mayfly = false;
-
   public AngelringItem(Settings settings) {
     super(settings);
   }
@@ -29,13 +28,6 @@ public class AngelringItem extends TrinketItem {
 
     // Return the registered item!
     return registeredItem;
-  }
-
-  @Override
-  public void tick(ItemStack item, SlotReference slot, LivingEntity entity) {
-    if (entity instanceof PlayerEntity player && player.getAbilities().allowFlying) {
-      player.getAbilities().flying = true;
-    }
   }
 
   public static final Item angelRing = AngelringItem.register(new Item(new FabricItemSettings()), "angelring");

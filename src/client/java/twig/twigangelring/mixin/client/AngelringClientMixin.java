@@ -27,7 +27,9 @@ public class AngelringClientMixin {
     if (TrinketsApi.getTrinketComponent(player) != null) {
       TrinketComponent trinket = TrinketsApi.getTrinketComponent(player).get();
 
-      if (jumpKey.isPressed() && !player.isOnGround() && !player.getAbilities().creativeMode) {
+      if (jumpKey.isPressed() && !player.isOnGround() &&
+          !player.getAbilities().creativeMode) {
+        jumpKeyIsDown = true;
         tickTimer += 1;
         if (tickTimer >= 20) {
           tickTimer = 0;
@@ -37,20 +39,21 @@ public class AngelringClientMixin {
         if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
           if (isDoubleJump) {
             if (jumpKeyIsDown) {
-              player.getAbilities().allowFlying = true;
+              twig.twigangelring.Angelring.canFly = true;
             } else {
-              player.getAbilities().allowFlying = false;
+              twig.twigangelring.Angelring.canFly = false;
             }
           } else if (!isDoubleJump) {
             isDoubleJump = true;
           }
+        } else {
+          twig.twigangelring.Angelring.canFly = false;
         }
       }
 
-      jumpKeyIsDown = true;
-    }
-    if (!jumpKey.isPressed() && tickTimer >= 20) {
-      jumpKeyIsDown = false;
+      if (!jumpKey.isPressed() && tickTimer >= 20) {
+        jumpKeyIsDown = false;
+      }
     }
   }
 }
