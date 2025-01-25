@@ -64,6 +64,7 @@ public class Angelring implements ModInitializer {
         (server, player, handler, buf, responseSender) -> {
           Boolean flystate = buf.readBoolean();
           canFly = flystate;
+          System.out.println(player.getName() + " flystate has been updated to " + flystate);
         });
 
     ServerPlayNetworking.registerGlobalReceiver(

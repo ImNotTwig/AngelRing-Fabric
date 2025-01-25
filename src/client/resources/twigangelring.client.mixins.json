@@ -3,7 +3,6 @@
   "package": "twig.twigangelring.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "AngelringClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
