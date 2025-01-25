@@ -92,23 +92,19 @@ public class AngelringClient implements ClientModInitializer {
 
             if (jumpKey.isPressed()) {
               currentJumpTick = currentTick;
-
               tickDiff = currentJumpTick - lastJumpTick;
-              lastJumpTick = currentJumpTick;
 
               // dont process double jumps if we're holding down the key
-              if (tickDiff > DOUBLE_JUMP_TICK_MIN) {
-                if (tickDiff < DOUBLE_JUMP_TICK_MAX) {
-                  if (c.player.isOnGround()) {
-                    isDoubleJump = DoubleJumpState.ONCE;
-                  } else if (!c.player.getAbilities().flying) {
+              if (tickDiff > DOUBLE_JUMP_TICK_MIN && tickDiff < DOUBLE_JUMP_TICK_MAX) {
+                if (c.player.isOnGround()) {
+                  isDoubleJump = DoubleJumpState.ONCE;
+                } else if (!c.player.getAbilities().flying) {
+                  isDoubleJump = DoubleJumpState.TWICE;
+                } else {
+                  if (isDoubleJump == DoubleJumpState.ONCE) {
                     isDoubleJump = DoubleJumpState.TWICE;
-                  } else {
-                    if (isDoubleJump == DoubleJumpState.ONCE) {
-                      isDoubleJump = DoubleJumpState.TWICE;
-                    } else if (isDoubleJump == DoubleJumpState.INVALID) {
-                      isDoubleJump = DoubleJumpState.TWICE;
-                    }
+                  } else if (isDoubleJump == DoubleJumpState.INVALID) {
+                    isDoubleJump = DoubleJumpState.TWICE;
                   }
                 }
 
@@ -116,14 +112,11 @@ public class AngelringClient implements ClientModInitializer {
                   canFly = !canFly;
                   isDoubleJump = DoubleJumpState.INVALID;
                   lastJumpTick = 0;
-                  currentJumpTick = 0;
                 }
               } else {
-                lastJumpTick = 0;
-                currentJumpTick = 0;
+                System.out.println("reset due to tick timeout");
+                lastJumpTick = currentJumpTick;
               }
-            } else {
-              currentJumpTick = 0;
             }
             if (tickDiff >= DOUBLE_JUMP_TICK_MAX) {
               isDoubleJump = DoubleJumpState.INVALID;
