@@ -25,11 +25,15 @@ public class AngelringClient implements ClientModInitializer {
 
   private Boolean canFly = false;
 
-  private long lastJumpTime = System.currentTimeMillis();
-  private long currentJumpTime = 0;
-  private long jumpDiff = currentJumpTime - lastJumpTime;
-  private static final long DOUBLE_JUMP_THRESHOLD = 500;
-  private static final long HOLD_THRESHOLD = 75;
+  // TODO: change the thresholds to be based on ticks instead of milliseconds
+
+  private static final int DOUBLE_JUMP_TICK_MIN = 1;
+  private static final int DOUBLE_JUMP_TICK_MAX = 10;
+
+  private long currentTick = 0;
+  private long lastJumpTick = 0;
+  private long currentJumpTick = 0;
+  private long tickDiff = 0;
 
   @Override
   public void onInitializeClient() {
@@ -66,7 +70,14 @@ public class AngelringClient implements ClientModInitializer {
     });
 
     ClientTickEvents.END_CLIENT_TICK.register(c -> {
-      if (c.player != null) {
+      if (c.player == null) {
+        currentTick = 0;
+        currentJumpTick = 0;
+        lastJumpTick = 0;
+        tickDiff = 0;
+      } else if (c.player != null) {
+
+        currentTick++;
 
         KeyBinding jumpKey = c.options.jumpKey;
 
@@ -80,14 +91,14 @@ public class AngelringClient implements ClientModInitializer {
           if (trinket.isEquipped(twig.twigangelring.AngelringItem.angelRing)) {
 
             if (jumpKey.isPressed()) {
-              currentJumpTime = System.currentTimeMillis();
+              currentJumpTick = currentTick;
 
-              jumpDiff = currentJumpTime - lastJumpTime;
-              lastJumpTime = currentJumpTime;
+              tickDiff = currentJumpTick - lastJumpTick;
+              lastJumpTick = currentJumpTick;
 
               // dont process double jumps if we're holding down the key
-              if (jumpDiff > HOLD_THRESHOLD) {
-                if (jumpDiff < DOUBLE_JUMP_THRESHOLD) {
+              if (tickDiff > DOUBLE_JUMP_TICK_MIN) {
+                if (tickDiff < DOUBLE_JUMP_TICK_MAX) {
                   if (c.player.isOnGround()) {
                     isDoubleJump = DoubleJumpState.ONCE;
                   } else if (!c.player.getAbilities().flying) {
@@ -104,17 +115,17 @@ public class AngelringClient implements ClientModInitializer {
                 if (isDoubleJump == DoubleJumpState.TWICE) {
                   canFly = !canFly;
                   isDoubleJump = DoubleJumpState.INVALID;
-                  lastJumpTime = 0;
-                  currentJumpTime = 0;
+                  lastJumpTick = 0;
+                  currentJumpTick = 0;
                 }
               } else {
-                lastJumpTime = 0;
-                currentJumpTime = 0;
+                lastJumpTick = 0;
+                currentJumpTick = 0;
               }
             } else {
-              currentJumpTime = 0;
+              currentJumpTick = 0;
             }
-            if (jumpDiff >= DOUBLE_JUMP_THRESHOLD) {
+            if (tickDiff >= DOUBLE_JUMP_TICK_MAX) {
               isDoubleJump = DoubleJumpState.INVALID;
             }
 
