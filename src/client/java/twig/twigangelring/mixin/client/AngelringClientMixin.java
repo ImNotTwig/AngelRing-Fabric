@@ -14,7 +14,6 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.network.PacketByteBuf;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
-import io.netty.buffer.ByteBuf;
 
 import twig.twigangelring.Angelring;
 
@@ -53,23 +52,31 @@ public class AngelringClientMixin {
           jumpDiff = currentJumpTime - lastJumpTime;
           lastJumpTime = currentJumpTime;
 
-          if (jumpDiff > HOLD_THRESHOLD && jumpDiff < DOUBLE_JUMP_THRESHOLD) {
-            if (player.isOnGround()) {
-              isDoubleJump = DoubleJumpState.ONCE;
-            } else if (!player.getAbilities().flying) {
-              isDoubleJump = DoubleJumpState.TWICE;
-            } else {
-              if (isDoubleJump == DoubleJumpState.ONCE) {
-                isDoubleJump = DoubleJumpState.TWICE;
-              } else if (isDoubleJump == DoubleJumpState.INVALID) {
+          // dont process double jumps if we're holding down the key
+          if (jumpDiff > HOLD_THRESHOLD) {
+            if (jumpDiff < DOUBLE_JUMP_THRESHOLD) {
+              if (player.isOnGround()) {
                 isDoubleJump = DoubleJumpState.ONCE;
+              } else if (!player.getAbilities().flying) {
+                isDoubleJump = DoubleJumpState.TWICE;
+              } else {
+                if (isDoubleJump == DoubleJumpState.ONCE) {
+                  isDoubleJump = DoubleJumpState.TWICE;
+                } else if (isDoubleJump == DoubleJumpState.INVALID) {
+                  isDoubleJump = DoubleJumpState.TWICE;
+                }
               }
             }
-          }
 
-          if (isDoubleJump == DoubleJumpState.TWICE) {
-            canFly = !canFly;
-            isDoubleJump = DoubleJumpState.INVALID;
+            if (isDoubleJump == DoubleJumpState.TWICE) {
+              canFly = !canFly;
+              isDoubleJump = DoubleJumpState.INVALID;
+              lastJumpTime = 0;
+              currentJumpTime = 0;
+            }
+          } else {
+            lastJumpTime = 0;
+            currentJumpTime = 0;
           }
         } else {
           currentJumpTime = 0;
