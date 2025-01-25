@@ -114,7 +114,6 @@ public class AngelringClient implements ClientModInitializer {
                   lastJumpTick = 0;
                 }
               } else {
-                System.out.println("reset due to tick timeout");
                 lastJumpTick = currentJumpTick;
               }
             }
