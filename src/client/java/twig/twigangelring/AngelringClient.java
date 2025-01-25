@@ -12,8 +12,6 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 
@@ -24,8 +22,7 @@ public class AngelringClient implements ClientModInitializer {
   private DoubleJumpState isDoubleJump = DoubleJumpState.INVALID;
 
   private Boolean canFly = false;
-
-  // TODO: change the thresholds to be based on ticks instead of milliseconds
+  private Boolean couldFly = false;
 
   private static final int DOUBLE_JUMP_TICK_MIN = 1;
   private static final int DOUBLE_JUMP_TICK_MAX = 10;
@@ -57,7 +54,7 @@ public class AngelringClient implements ClientModInitializer {
                   Vec3d lookDirection = c.player.getRotationVector();
                   double boostAmount = 2;
                   Vec3d newVel = c.player.getVelocity().add(lookDirection.multiply(boostAmount));
-                  c.player.setVelocity(c.player.getVelocity().add(lookDirection.multiply(boostAmount)));
+                  c.player.setVelocity(newVel);
                   buf.writeVector3f(new Vector3f((float) newVel.x, (float) newVel.y, (float) newVel.z));
                   ClientPlayNetworking.send(Angelring.BOOST_PACKET_ID, buf);
                   lastBoostTime = currentTime;
@@ -125,10 +122,13 @@ public class AngelringClient implements ClientModInitializer {
             canFly = false;
           }
 
-          PacketByteBuf buf = PacketByteBufs.create();
-          buf.writeBoolean(canFly);
+          if (couldFly != canFly) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBoolean(canFly);
 
-          ClientPlayNetworking.send(Angelring.FLY_STATE_CHANGE_PACKET_ID, buf);
+            ClientPlayNetworking.send(Angelring.FLY_STATE_CHANGE_PACKET_ID, buf);
+            couldFly = canFly;
+          }
         }
       }
     });
